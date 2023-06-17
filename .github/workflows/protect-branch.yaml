@@ -1,0 +1,25 @@
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - 'main'
+
+name: Ensure Knit-able
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive  # Fetch Hugo themes (true OR recursive)
+          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+
+      - name: Render site
+        run: |
+          docker run --rm \
+          --name jensberg047.github.io.builder \
+          --volume /home/runner/work/jensberg047.github.io/jensberg047.github.io:/usr/src/app \
+          ghcr.io/jensberg047/jensberg047.github.io.builder:main \
+          R -e 'rmarkdown::render_site()'
